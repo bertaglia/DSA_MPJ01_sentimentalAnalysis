@@ -1,5 +1,5 @@
 # load all required packages
-requiredpackages <- c("lintr", "ggplot2", "styler", "config")
+requiredpackages <- c("lintr", "ggplot2", "styler", "config", "twitteR", "plyr", "stringr", "tm", "sentiment", "Rstem")
 
 for (package in requiredpackages) {
   if (!require(package, character.only = T)) {
@@ -8,8 +8,15 @@ for (package in requiredpackages) {
   }
 }
 
+#recovering twitter's api keys from config.yml
+twitter_cfg <- config::get("AccessKey")
+
+#twitter_cfg$access_token
+#twitter_cfg$access_token_secret
+
+
 # remember to keep your config.yml out of your vcs (eg: include it in your .gitignore)
-# exemplo how to get config from config.yml
+# exemple how to get config from config.yml
 # my_awesome_api_configuration <- config::get("my_awesome_api")
 # my_awesome_api_configuration$url,
 # my_awesome_api_configuration$api_key
