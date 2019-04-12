@@ -52,7 +52,6 @@ for (package in requiredpackages) {
 
 #include external resources
 source('RScripts/utils.R')
-
 ##' ---------------------------------------------------------------------------------
 
 
@@ -61,7 +60,7 @@ source('RScripts/utils.R')
 ##' remember to keep your config.yml out of your vcs (eg: include it in your .gitignore)
 ##' recovering twitter's api keys from config.yml (this file should be created with your own
 ##' api's keys)
-
+##' ---------------------------------------------------------------------------------
 twitter_con <- config::get("ConsumerKey")
 twitter_acc <- config::get("AccessKey")
 
@@ -75,10 +74,9 @@ twitteR::setup_twitter_oauth(
 
 
 ##' ---------------------------------------------------------------------------------
-##' Gathering the data from twitter
-##'
-##' twitter's search parameters
-
+##' retrieving data from twitter
+##' ---------------------------------------------------------------------------------
+#twitter's search parameters
 subject <- "enem"
 qt_twt  <- 1000
 lang    <- "pt"
@@ -92,13 +90,12 @@ tweetdata <- searchTwitter(
     since = inidt,
     resultType = "mixed"
 )
-
 ##' ---------------------------------------------------------------------------------
 
 
 ##' ---------------------------------------------------------------------------------
 ##' processing, cleaning and organizing
-
+##' ---------------------------------------------------------------------------------
 #conv from list to vector/matrix
 tweetlist <- sapply(tweetdata, tweet_get_text)
 
@@ -113,7 +110,7 @@ tweetlist <- na.omit(tweetlist)
 
 View(tweetlist)
 
-#writing recovered tweets into a txt file
+#writing recovered tweets into a txt file for later analysis 
 file_name <- paste("tweets", subject, toString(Sys.Date()), ".txt", sep = "")
 file_path <- paste("data/processed/", file_name, sep = "")
 write_lines(x = tweetlist,
@@ -124,18 +121,21 @@ write_lines(x = tweetlist,
 
 ##' ---------------------------------------------------------------------------------
 ##' populating a corpus to create a wordCloud
-##'
+##' ---------------------------------------------------------------------------------
+##' 
 ##' source: https://www.youtube.com/watch?v=pvjhm5TTd2A
 ##' source: https://davetang.org/muse/2013/04/06/using-the-r_twitter-package/
+##' source: DSA Project solution
+##' ---------------------------------------------------------------------------------
 
-#load my own stopwords_ptBR list
+#load my own stopwords_ptBR list gathered from many internet sources
 stpwrd <- readr::read_lines(file = "data/processed/stopwords_ptBR.txt")
 
 #corpus
 tweet_corp <- tm::Corpus(VectorSource(tweetlist))
 tweet_corp <- tm::tm_map(tweet_corp, content_transformer(tolower))
 
-#remove all portuguese stopwords tm package
+#remove all english and portuguese stopwords tm package
 tweet_corp <- tm::tm_map(tweet_corp, function(x)removeWords(x, stopwords()))
 tweet_corp <- tm::tm_map(tweet_corp, function(x)removeWords(x, stopwords(kind = "portuguese")))
 tweet_corp <- tm::tm_map(tweet_corp, function(x)removeWords(x, stpwrd))
@@ -148,8 +148,11 @@ tweet_corp <- tm::tm_map(tweet_corp, function(x){tm::stripWhitespace(x)})
 tweet_corp <- tm::tm_map(tweet_corp, function(x){tm::removePunctuation(x)})
 tweet_corp <- tm::tm_map(tweet_corp, function(x){trimws(x)})
 
-#Gerando uma nuvem palavras
+#reviewing/checking
+tm::inspect(tweet_corp)
+tweet_corp
 
+#Gerando uma nuvem palavras
 #RColorBrewer::display.brewer.all()
 #colors01 <- brewer.pal(08, "Dark2")
 #colors01 <- grDevices::rainbow()
@@ -164,8 +167,42 @@ wordcloud::wordcloud(
     random.order = FALSE,
     colors = colors01
 )
+##' ---------------------------------------------------------------------------------
+
 
 ##' ---------------------------------------------------------------------------------
-##' 
-##' 
-##' 
+##' words' frequencies and associations
+##' ---------------------------------------------------------------------------------
+
+#matrix
+tweettdm <- tm::TermDocumentMatrix(tweet_corp)
+tweettdm
+
+# Finding frequent words
+tm::findFreqTerms(tweettdm, lowfreq = 11)
+
+# Seeking for associations
+tm::findAssocs(tweettdm, c("futuro","universidade","exame","estudar","nota"), 0.60)
+
+# Removing sparse terms 
+tweet2tdm <- tm::removeSparseTerms(tweettdm, sparse = 0.9)
+
+# scaling 
+tweet2tdmscale <- scale(tweet2tdm)
+
+# Distance Matrix
+tweetdist <- dist(tweet2tdmscale, method = "euclidean")
+
+# Preparing the dendrogram
+tweetfit <- hclust(tweetdist)
+
+# Ploting the dendrogram
+plot(tweetfit)
+
+# verifying the word groups
+cutree(tweetfit, k = 4)
+
+# Visualizing the groups 
+rect.hclust(tweetfit, k = 3, border = "red")
+##' ---------------------------------------------------------------------------------
+
