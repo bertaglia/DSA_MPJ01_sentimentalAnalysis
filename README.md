@@ -86,3 +86,8 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 * Inspiration
 * etc
 
+
+*conda env export | grep -v "^prefix: " > environment.yml
+*conda env create -f environment.yml
+*or
+*conda env create -f environment.yml -p /home/user/anaconda3/envs/env_name
