@@ -1,1 +1,2 @@
 #TODO:
+001 - Implementar a recuperacao dos tweets do txt quando o txt estiver disponivel no diretorio.

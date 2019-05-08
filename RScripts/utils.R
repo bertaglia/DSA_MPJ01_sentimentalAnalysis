@@ -64,3 +64,13 @@ tryTolower = function(x)
 tweet_get_text <- function(x) {
     x$getText()
 }
+
+#trytolower
+tryTolower <- function(x) { 
+    y <- NA
+    try_error <- tryCatch( tolower(x), error = function(e) e)
+    if (!inherits(try_error, "error")) {
+        y <- tolower(x)
+    }
+    return(y)
+}
