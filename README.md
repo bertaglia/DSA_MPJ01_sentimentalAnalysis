@@ -16,10 +16,10 @@ $cd MPJ01_sentimentalAnalysis
 $conda env create -f environment.yml
 
 -linux/macOS:
-$cp resources/config.yml config.yml
+$cp resources/config.txt config.yml
 
 -Windows:
-copy resources/config.yml config.yml
+copy resources/config.txt config.yml
 ```
 
 Preencher as chaves de sua app twitter, caso nao tenha uma, crie em : https://developer.twitter.com/en/apps

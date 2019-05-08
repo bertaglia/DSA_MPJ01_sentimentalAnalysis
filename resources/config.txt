@@ -1,0 +1,9 @@
+#chaves api para aplicacao twitter dsa 
+default:
+    ConsumerKey:
+        api_key: 
+        api_secret_key: 
+
+    AccessKey:
+        access_token: 
+        access_token_secret: 
